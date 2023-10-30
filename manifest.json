@@ -1,0 +1,26 @@
+{
+  "name": "Form Extension",
+  "version": "1.0.0",
+  "description": "Form Extension",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["https://*.google.com/forms/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.google.com/forms/*"],
+      "js": ["contentScript.js"]
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "assests/16x16.png",
+      "48": "assests/48x48.png",
+      "128": "assests/128x128.png"
+    },
+    "default_title": "Form Extension",
+    "default_popup": "popup.html"
+  },
+  "manifest_version": 3
+}
