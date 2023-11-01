@@ -17,3 +17,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         });
     }
 });
+
+
+// background.js
+chrome.runtime.onMessage.addListener(
+    function (request, sender, sendResponse) {
+        if (request.data) {
+            // Handle the data received from the content script here
+            console.log(request.data);
+        }
+    }
+);
