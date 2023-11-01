@@ -1,6 +1,6 @@
-// This function fetches and returns the content of temp.html
-function fetchTempHtml() {
-    return fetch(chrome.runtime.getURL('temp.html')).then(response => response.text());
+// This function fetches and returns the content of prompt.html
+function fetchPromptHtml() {
+    return fetch(chrome.runtime.getURL('prompt.html')).then(response => response.text());
 }
 
 // This function injects HTML content into the page
@@ -16,12 +16,12 @@ function injectHtml(html) {
     }
 }
 
-// When the DOM is fully loaded, fetch temp.html and inject it
+// When the DOM is fully loaded, fetch prompt.html and inject it
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        fetchTempHtml().then(html => injectHtml(html));
+        fetchPromptHtml().then(html => injectHtml(html));
     });
 } else {
     // This means the DOM is already loaded
-    fetchTempHtml().then(html => injectHtml(html));
+    fetchPromptHtml().then(html => injectHtml(html));
 }
