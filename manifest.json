@@ -3,15 +3,23 @@
   "name": "Form Extension",
   "version": "1.0.0",
   "description": "Form Extension",
-  "permissions": ["storage", "tabs", "activeTab", "scripting"],
-  "host_permissions": ["https://*.google.com/forms/*"],
+  "permissions": [
+    "storage", 
+    "tabs", 
+    "activeTab", 
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.google.com/forms/*",
+    "https://prompt-enhancer.onrender.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
       "matches": ["https://*.google.com/forms/*"],
-      "js": ["contentScript.js", "helper.js", "popup.js"]
+      "js": ["contentScript.js"]
     }
   ],
   "web_accessible_resources": [

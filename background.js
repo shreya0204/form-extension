@@ -18,13 +18,30 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    const apiURL = 'https://prompt-enhancer.onrender.com/api/v1/suffix/promptAdd/';
 
-// background.js
-chrome.runtime.onMessage.addListener(
-    function (request, sender, sendResponse) {
-        if (request.data) {
-            // Handle the data received from the content script here
-            console.log(request.data);
+    (async () => {
+        try {
+            const response = await fetch(apiURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt: request.userPrompt })
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            sendResponse({ data: data });
+        } catch (error) {
+            console.error('Error:', error);
+            sendResponse({ error: error.message });
         }
-    }
-);
+    })();
+
+    return true; // Return true to indicate you wish to send a response asynchronously
+});
+
+
