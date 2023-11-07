@@ -122,12 +122,54 @@ function setUpButtonListener() {
     }
 }
 
+function showAddQuestionsButton(url) {
+    const searchButton = document.getElementById('searchButton');
+    const addQuestionsButton = document.getElementById('addQuestionsButton');
+
+    searchButton.style.display = 'none'; // Hide search button
+    addQuestionsButton.style.display = 'inline-block'; // Show add questions button
+
+    addQuestionsButton.onclick = function () {
+        window.open(url, '_blank'); // Open the URL in a new tab
+        resetSearchButton(); // Reset the buttons after opening the URL
+    };
+}
+
+function resetSearchButton() {
+    const searchButton = document.getElementById('searchButton');
+    const addQuestionsButton = document.getElementById('addQuestionsButton');
+
+    searchButton.style.display = 'inline-block'; // Show search button
+    addQuestionsButton.style.display = 'none'; // Hide add questions button
+
+    searchButton.innerText = 'Search your result';
+    searchButton.disabled = false;
+    searchButton.style.backgroundColor = '#7860bf';
+}
+
 
 function generateUrl(formId, questions) {
     const scriptUrl = "https://script.google.com/a/macros/kiit.ac.in/s/AKfycbzmUChMVYOzNTRwUb1M802iYeYZKZGR4O7iFocYqJBlr_aTTgzTvxemGcNvuAOjm-0/exec";
     var encodedQuestions = encodeURIComponent(JSON.stringify(questions));
     var fullUrl = scriptUrl + "?formId=" + formId + "&questionData=" + encodedQuestions;
+
+    showAddQuestionsButton(fullUrl);
     return fullUrl;
+}
+
+function disableSearchButton() {
+    const searchButton = document.getElementById('searchButton');
+    searchButton.disabled = true;
+    searchButton.innerText = 'Searching...'; // Optional: change the button text
+    searchButton.style.backgroundColor = '#aaa';
+}
+
+
+function enableSearchButton() {
+    const searchButton = document.getElementById('searchButton');
+    searchButton.disabled = false;
+    searchButton.innerText = 'Search your result'; // Reset the button text
+    searchButton.style.backgroundColor = '#7860bf';
 }
 
 function handleSearch(userPrompt, promptType) {
@@ -135,7 +177,7 @@ function handleSearch(userPrompt, promptType) {
         alert('Please enter a prompt.');
         return;
     }
-    console.log("User Prompt and Type : " + userPrompt, promptType);
+    disableSearchButton();
 
     if (!currentFormId) {
         alert('Form ID has not been received yet.');
@@ -146,6 +188,7 @@ function handleSearch(userPrompt, promptType) {
     chrome.runtime.sendMessage({ userPrompt: userPrompt }, function (response) {
         if (response.error) {
             alert('Error: ' + response.error);
+            enableSearchButton();
             return;
         }
         if (response.data) {
@@ -157,7 +200,6 @@ function handleSearch(userPrompt, promptType) {
             // Send question data to covert it in url
             const url = generateUrl(currentFormId, questions);
             console.log("Url : " + url);
-
         }
     });
 }
