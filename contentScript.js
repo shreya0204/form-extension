@@ -86,54 +86,15 @@ let currentFormId = null; // This variable will hold the form ID
 
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    if (message.action === "insertAutoCheckButton") {
+        insertAutoCheckButton();
+    }
     if (message.type === "NEW") {
         currentFormId = message.formId; // Store the form ID
         console.log('Form ID received:', currentFormId);
     }
 });
 
-// This function fetches and returns the content of prompt.html
-function fetchPromptHtml() {
-    return fetch(chrome.runtime.getURL('prompt.html')).then(response => response.text());
-}
-
-// This function injects HTML content into the page
-function injectHtml(html) {
-    const targetDivs = document.getElementsByClassName('q5O05c oydeSd');
-    if (targetDivs.length > 0) {
-        const targetDiv = targetDivs[0];
-        const container = document.createElement('div');
-        container.innerHTML = html;
-        targetDiv.parentNode.insertBefore(container, targetDiv.nextSibling);
-        setUpButtonListener();
-    }
-}
-
-// Sets up the click event listener for the "Search your result" button
-function setUpButtonListener() {
-    const searchButton = document.getElementById('searchButton');
-    if (searchButton) {
-        searchButton.addEventListener('click', function () {
-            const userInput = document.getElementById('prompt').value;
-            const promptTypeSelect = document.getElementById('promptTypeSelect');
-            const promptType = promptTypeSelect.options[promptTypeSelect.selectedIndex].value;
-            handleSearch(userInput, promptType);
-        });
-    }
-}
-
-function showAddQuestionsButton(url) {
-    const searchButton = document.getElementById('searchButton');
-    const addQuestionsButton = document.getElementById('addQuestionsButton');
-
-    searchButton.style.display = 'none'; // Hide search button
-    addQuestionsButton.style.display = 'inline-block'; // Show add questions button
-
-    addQuestionsButton.onclick = function () {
-        window.open(url, '_blank'); // Open the URL in a new tab
-        resetSearchButton(); // Reset the buttons after opening the URL
-    };
-}
 
 function resetSearchButton() {
     const searchButton = document.getElementById('searchButton');
@@ -171,6 +132,50 @@ function enableSearchButton() {
     searchButton.innerText = 'Search your result'; // Reset the button text
     searchButton.style.backgroundColor = '#7860bf';
 }
+
+function showAddQuestionsButton(url) {
+    const searchButton = document.getElementById('searchButton');
+    const addQuestionsButton = document.getElementById('addQuestionsButton');
+
+    searchButton.style.display = 'none'; // Hide search button
+    addQuestionsButton.style.display = 'inline-block'; // Show add questions button
+
+    addQuestionsButton.onclick = function () {
+        window.open(url, '_blank'); // Open the URL in a new tab
+        resetSearchButton(); // Reset the buttons after opening the URL
+    };
+}
+
+// This function fetches and returns the content of prompt.html
+function fetchPromptHtml() {
+    return fetch(chrome.runtime.getURL('prompt.html')).then(response => response.text());
+}
+
+// This function injects HTML content into the page
+function injectHtml(html) {
+    const targetDivs = document.getElementsByClassName('q5O05c oydeSd');
+    if (targetDivs.length > 0) {
+        const targetDiv = targetDivs[0];
+        const container = document.createElement('div');
+        container.innerHTML = html;
+        targetDiv.parentNode.insertBefore(container, targetDiv.nextSibling);
+        setUpButtonListener();
+    }
+}
+
+// Sets up the click event listener for the "Search your result" button
+function setUpButtonListener() {
+    const searchButton = document.getElementById('searchButton');
+    if (searchButton) {
+        searchButton.addEventListener('click', function () {
+            const userInput = document.getElementById('prompt').value;
+            const promptTypeSelect = document.getElementById('promptTypeSelect');
+            const promptType = promptTypeSelect.options[promptTypeSelect.selectedIndex].value;
+            handleSearch(userInput, promptType);
+        });
+    }
+}
+
 
 function handleSearch(userPrompt, promptType) {
     if (!userPrompt) {
@@ -210,4 +215,25 @@ if (document.readyState === 'loading') {
     });
 } else {
     fetchPromptHtml().then(html => injectHtml(html));
+}
+
+function insertAutoCheckButton() {
+    // Check if the button already exists
+    if (document.getElementById('autoCheckButton')) {
+        console.log('Auto Check Button already exists.');
+        return; // If the button already exists, do nothing
+    }
+
+    const targetDiv = document.querySelector('.P2pQDc'); // Select the target element
+    console.log("target", targetDiv);
+    if (targetDiv) {
+        // Create the button element
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.id = 'autoCheckButton';
+        button.innerText = 'Auto Check Theory Questions';
+        button.style.cssText = 'cursor: pointer; padding: 10px; color: white; background-color: #7860bf; border: none;';
+        // Insert the button as the second child
+        targetDiv.insertBefore(button, targetDiv.children[1]);
+    }
 }

@@ -1,4 +1,7 @@
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (tab.url && tab.url.includes('https://docs.google.com/forms/d/') && tab.url.includes('/edit#responses')) {
+        chrome.tabs.sendMessage(tabId, { action: "insertAutoCheckButton" });
+    }
     if (tab.url && tab.url.includes("docs.google.com/forms")) {
 
         let queryParameter = "";
@@ -43,5 +46,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     return true; // Return true to indicate you wish to send a response asynchronously
 });
-
-
