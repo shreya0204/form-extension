@@ -348,20 +348,28 @@ async function submitPastedData() {
 function displayURLContainer(url) {
     const targetDiv = document.querySelector('.P2pQDc');
     if (targetDiv) {
+        // Create a container for the button
         const buttonContainer = document.createElement('div');
         buttonContainer.id = 'urlButtonContainer';
         buttonContainer.style.cssText = 'margin-top: 10px;';
 
+        // Add a button
         const openUrlButton = document.createElement('button');
-        openUrlButton.innerText = 'Click here to update marks';
+        openUrlButton.innerText = 'Click Here to update marks';
         openUrlButton.style.cssText = 'padding: 10px; cursor: pointer;';
 
+        // Append the button to the container
         buttonContainer.appendChild(openUrlButton);
 
+        // Insert the container into the page
         targetDiv.appendChild(buttonContainer);
 
+        // Add event listener to the button to open the URL in a new tab and then remove the button
         openUrlButton.addEventListener('click', () => {
             window.open(url, '_blank');
+
+            // Remove the button container from the UI
+            buttonContainer.remove();
         });
     }
 }
