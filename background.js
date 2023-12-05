@@ -21,6 +21,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const apiURL = 'https://prompt-enhancer.onrender.com/api/v1/suffix/promptAdd/';
 
@@ -45,4 +46,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     })();
 
     return true; // Return true to indicate you wish to send a response asynchronously
+});
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.action === "submitData") {
+        fetch('http://localhost:5000/api/v1/formatter/extract-answers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: request.data
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                sendResponse({ data: data });
+            })
+            .catch(error => {
+                sendResponse({ error: error.message });
+            });
+
+        return true; // Indicates that the response is sent asynchronously
+    }
 });

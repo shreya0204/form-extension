@@ -64,25 +64,26 @@ const questions = [
     },
     {
         "type": "text",
-        "title": "Explain the theory of relativity.",
+        "title": "Explain the theory of relativity. (less than 50 words)",
         "required": true,
         "points": 5
     },
     {
         "type": "text",
-        "title": "Describe the process of photosynthesis.",
+        "title": "Describe the process of photosynthesis. (less than 50 words)",
         "required": true,
         "points": 5
     },
     {
         "type": "text",
-        "title": "Summarize the main events of the French Revolution.",
+        "title": "Summarize the main events of the French Revolution. (less than 50 words)",
         "required": true,
         "points": 5
     }
 ]
 
 let currentFormId = null; // This variable will hold the form ID
+let currentSheetId = '1ROzHfRXbtNW4n-oDd05o0RmDvEcup3rAxiKcxrtER80'; // This variable will hold the
 
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -94,6 +95,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         console.log('Form ID received:', currentFormId);
     }
 });
+
 
 
 function resetSearchButton() {
@@ -218,7 +220,6 @@ if (document.readyState === 'loading') {
 }
 
 function insertAutoCheckButton() {
-    // Check if the button already exists
     if (document.getElementById('autoCheckButton')) {
         console.log('Auto Check Button already exists.');
         return; // If the button already exists, do nothing
@@ -236,4 +237,158 @@ function insertAutoCheckButton() {
         // Insert the button as the second child
         targetDiv.insertBefore(button, targetDiv.children[1]);
     }
+    // Find the button and add a click event listener
+    const autoCheckButton = document.getElementById('autoCheckButton');
+    if (autoCheckButton) {
+        autoCheckButton.addEventListener('click', function () {
+            handleAutoCheckButtonClick();
+        });
+    }
 }
+
+function handleAutoCheckButtonClick() {
+    // Create a container for the URL input and instructions
+    const urlContainer = document.createElement('div');
+    urlContainer.id = 'copyDataContainer';
+    urlContainer.style.cssText = 'margin-top: 10px;';
+
+    // Add instruction text
+    const instructionText = document.createElement('p');
+    instructionText.innerText = 'Copy and paste this URL in a new tab, then copy the data. After copying, click the "I Have Copied the Data" button below.';
+    urlContainer.appendChild(instructionText);
+
+    // Create an input field for the URL
+    const urlInput = document.createElement('input');
+    urlInput.type = 'text';
+    urlInput.value = `https://script.google.com/a/macros/kiit.ac.in/s/AKfycbxwHrR53Fib2GGFCxXax44GxgOjRStYwWROZhCLRm-DoMRF7eqIQ_-uJLaJ588aKnjw/exec?sheetId=${currentSheetId}`;
+    urlInput.readOnly = true;
+    urlInput.style.cssText = 'width: 80%;';
+    urlContainer.appendChild(urlInput);
+
+    // Create a button for confirming after copying
+    const confirmButton = document.createElement('button');
+    confirmButton.innerText = 'I Have Copied the Data';
+    confirmButton.style.cssText = 'margin-top: 10px; padding: 10px;';
+    confirmButton.onclick = () => {
+        showPasteDataArea(); // Show the paste data area
+    };
+    urlContainer.appendChild(confirmButton);
+
+    // Append the container to the document
+    const targetDiv = document.querySelector('.P2pQDc');
+    if (targetDiv) {
+        targetDiv.appendChild(urlContainer);
+    }
+
+    // Automatically select the URL text
+    urlInput.focus();
+    urlInput.select();
+}
+
+function showPasteDataArea() {
+    // Select or create the container for pasting data
+    let pasteContainer = document.getElementById('pasteDataContainer');
+    if (!pasteContainer) {
+        pasteContainer = document.createElement('div');
+        pasteContainer.id = 'pasteDataContainer';
+        const targetDiv = document.querySelector('.P2pQDc');
+        if (targetDiv) {
+            targetDiv.appendChild(pasteContainer);
+        }
+    }
+
+    // Clear previous contents (if any)
+    pasteContainer.innerHTML = '';
+
+    // Create the textarea for pasting data
+    const dataInput = document.createElement('textarea');
+    dataInput.id = 'pastedDataInput';
+    dataInput.placeholder = 'Paste your data here';
+    dataInput.style.cssText = 'width: 100%; height: 100px; margin-top: 10px;';
+
+    // Create the button for submitting the pasted data
+    const submitButton = document.createElement('button');
+    submitButton.id = 'submitPastedDataButton';
+    submitButton.innerText = 'Submit Pasted Data';
+    submitButton.style.cssText = 'margin-top: 10px; padding: 10px;';
+    submitButton.onclick = submitPastedData;
+
+    // Append the textarea and button to the pasteContainer
+    pasteContainer.appendChild(dataInput);
+    pasteContainer.appendChild(submitButton);
+
+    // Ensure the container is visible
+    pasteContainer.style.display = 'block';
+}
+
+async function submitPastedData() {
+    const pastedData = document.getElementById('pastedDataInput').value;
+
+    console.log('submitPastedData', pastedData);
+    if (!pastedData) {
+        alert("Please paste the data");
+        return;
+    }
+    chrome.runtime.sendMessage({ action: "submitData", data: pastedData }, function (response) {
+        console.log('Response from background:', response);
+
+        const encodedData = encodeURIComponent(JSON.stringify(response.data));
+
+        const endpoint = 'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbwRg07RjU858bjirv4r6Jht9txCaQ3j5SnpSlIiEWD9QrRTN10rYHZ3L5MY9n84N1HT/exec';
+
+        const url = `${endpoint}?spreadsheetId=${currentSheetId}&jsonData=${encodedData}`;
+
+        console.log(url);
+        displayURLContainer(url);
+
+        removeDataContainers();
+    });
+}
+
+function displayURLContainer(url) {
+    const targetDiv = document.querySelector('.P2pQDc');
+    if (targetDiv) {
+        const buttonContainer = document.createElement('div');
+        buttonContainer.id = 'urlButtonContainer';
+        buttonContainer.style.cssText = 'margin-top: 10px;';
+
+        const openUrlButton = document.createElement('button');
+        openUrlButton.innerText = 'Click here to update marks';
+        openUrlButton.style.cssText = 'padding: 10px; cursor: pointer;';
+
+        buttonContainer.appendChild(openUrlButton);
+
+        targetDiv.appendChild(buttonContainer);
+
+        openUrlButton.addEventListener('click', () => {
+            window.open(url, '_blank');
+        });
+    }
+}
+
+
+function removeDataContainers() {
+    const urlContainer = document.getElementById('pasteDataContainer');
+    if (urlContainer && urlContainer.parentNode) {
+        urlContainer.parentNode.removeChild(urlContainer);
+    }
+    const copyData = document.getElementById('copyDataContainer');
+    if (copyData && copyData.parentNode) {
+        copyData.parentNode.removeChild(copyData);
+    }
+}
+
+// async function fetchYourApiForSheetId() {
+//     try {
+//         console.log("current form id", currentFormId);
+//         const yourApiUrl = `https://script.google.com/a/macros/kiit.ac.in/s/AKfycbzAdNOpxWLSzMDoSJBiGUWW-ZXdNV701y_Vmzp1oma2Ib7TILH6MeuzTvvG6-tRb1w5cQ/exec?formId=${currentFormId}`;
+//         const response = await fetch(yourApiUrl);
+//         const data = await response.json();
+//         console.log("helooooooooo", data);
+//         return data.sheetId; // Assuming the API returns the sheet ID
+//     } catch (error) {
+//         console.error('Error fetching sheet ID:', error);
+//         throw error; // Re-throw the error to be handled by the caller
+//     }
+// }
+
