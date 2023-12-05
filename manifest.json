@@ -11,14 +11,20 @@
   ],
   "host_permissions": [
     "https://*.google.com/forms/*",
-    "https://prompt-enhancer.onrender.com/*"
+    "https://prompt-enhancer.onrender.com/*",
+    "https://docs.google.com/*",
+    "http://localhost:5000/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://*.google.com/forms/*"],
+      "matches": ["https://*.google.com/forms/*", 
+      "https://docs.google.com/*",
+      "https://prompt-enhancer.onrender.com/*", 
+      "http://localhost:5000/*"
+    ],
       "js": ["contentScript.js"]
     }
   ],
