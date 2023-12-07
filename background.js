@@ -23,7 +23,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    const apiURL = 'https://prompt-enhancer.onrender.com/api/v1/suffix/promptAdd/';
+    const apiURL = 'http://localhost:3000/api/v1/suffix/promptAdd';
 
     (async () => {
         try {
@@ -38,6 +38,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
+            console.log(data);
             sendResponse({ data: data });
         } catch (error) {
             console.error('Error:', error);
@@ -50,12 +51,34 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "submitData") {
+        let dataToSend;
+
+        try {
+            // Attempt to parse the pasted data
+            const parsedData = JSON.parse(request.data);
+
+            // Ensure the parsed data is an array, if not, wrap it in an array
+            if (!Array.isArray(parsedData)) {
+                dataToSend = [parsedData];
+            } else {
+                dataToSend = parsedData;
+            }
+        } catch (error) {
+            // Handle cases where the pasted data is not valid JSON
+            console.error('Error parsing pasted data:', error);
+            sendResponse({ error: 'Pasted data is not valid JSON' });
+            return true;
+        }
+
+        console.log('data:', dataToSend);
+        console.log("type", typeof dataToSend)
+        // Send the formatted data to the backend
         fetch('http://localhost:5000/api/v1/formatter/extract-answers', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: request.data
+            body: JSON.stringify(dataToSend)
         })
             .then(response => {
                 if (!response.ok) {
@@ -73,3 +96,4 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         return true; // Indicates that the response is sent asynchronously
     }
 });
+

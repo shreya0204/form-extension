@@ -13,7 +13,8 @@
     "https://*.google.com/forms/*",
     "https://prompt-enhancer.onrender.com/*",
     "https://docs.google.com/*",
-    "http://localhost:5000/*"
+    "http://localhost:5000/*",
+    "http://localhost:3000/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -23,7 +24,8 @@
       "matches": ["https://*.google.com/forms/*", 
       "https://docs.google.com/*",
       "https://prompt-enhancer.onrender.com/*", 
-      "http://localhost:5000/*"
+      "http://localhost:5000/*",
+      "http://localhost:3000/*"
     ],
       "js": ["contentScript.js"]
     }
