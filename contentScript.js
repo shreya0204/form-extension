@@ -1,5 +1,6 @@
 let currentFormId = null; // This variable will hold the form ID
-let currentSheetId = '1ROzHfRXbtNW4n-oDd05o0RmDvEcup3rAxiKcxrtER80'; // This variable will hold the
+// let currentSheetId = '1ROzHfRXbtNW4n-oDd05o0RmDvEcup3rAxiKcxrtER80'; // This variable will hold the
+let currentSheetId = localStorage.getItem('spreadsheetId');
 
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -93,6 +94,35 @@ function setUpButtonListener() {
     }
 }
 
+function showSpreadsheetIdInput() {
+    const targetDiv = document.querySelector('.P2pQDc');
+    if (!targetDiv) return;
+
+    // Textarea for input
+    const textarea = document.createElement('textarea');
+    textarea.id = 'spreadsheetIdInput';
+    textarea.style.cssText = 'width: 70%; height: 100px; margin-top: 10px;';
+    textarea.placeholder = 'Enter your linked spreadsheet ID here';
+
+    // Submit button
+    const submitButton = document.createElement('button');
+    submitButton.innerText = 'Submit';
+    submitButton.addEventListener('click', function () {
+        const enteredId = textarea.value.trim();
+        if (enteredId) {
+            localStorage.setItem('spreadsheetId', enteredId); // Store the ID
+            currentSheetId = enteredId;
+            insertAutoCheckButton();
+            textarea.remove();
+            submitButton.remove();
+        } else {
+            alert('Please enter a valid spreadsheet ID.');
+        }
+    });
+
+    targetDiv.appendChild(textarea);
+    targetDiv.appendChild(submitButton);
+}
 
 function handleSearch(userPrompt, promptType) {
     if (!userPrompt) {
@@ -126,19 +156,16 @@ function handleSearch(userPrompt, promptType) {
         }
     });
 }
-// When the DOM is fully loaded, fetch prompt.html and inject it
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchPromptHtml().then(html => injectHtml(html));
-    });
+    document.addEventListener('DOMContentLoaded', initializeContentScript);
 } else {
-    fetchPromptHtml().then(html => injectHtml(html));
+    initializeContentScript();
 }
 
 function insertAutoCheckButton() {
-    if (document.getElementById('autoCheckButton')) {
-        console.log('Auto Check Button already exists.');
-        return; // If the button already exists, do nothing
+    if (document.getElementById('autoCheckButton') || !currentSheetId) {
+        return; // Do not proceed if button exists or sheet ID is missing
     }
 
     const targetDiv = document.querySelector('.P2pQDc'); // Select the target element
@@ -160,6 +187,14 @@ function insertAutoCheckButton() {
             handleAutoCheckButtonClick();
         });
     }
+}
+function initializeContentScript() {
+    if (currentSheetId) {
+        insertAutoCheckButton(); // Show button if ID is known
+    } else {
+        showSpreadsheetIdInput(); // Show input if ID is not known
+    }
+    fetchPromptHtml().then(html => injectHtml(html));
 }
 
 function handleAutoCheckButtonClick() {
@@ -239,28 +274,34 @@ function showPasteDataArea() {
 
 async function submitPastedData() {
     const pastedData = document.getElementById('pastedDataInput').value;
-
-    console.log('submitPastedData', pastedData);
-    console.log("Type", typeof pastedData);
     if (!pastedData) {
         alert("Please paste the data");
         return;
     }
-    chrome.runtime.sendMessage({ action: "submitData", data: pastedData }, function (response) {
-        console.log('Response from background:', response);
 
+    try {
+        const response = await new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({ action: "submitData", data: pastedData }, response => {
+                if (response.error) {
+                    reject(response.error);
+                } else {
+                    resolve(response);
+                }
+            });
+        });
+        console.log("Response Data", response.data)
+        // Process the response here
         const encodedData = encodeURIComponent(JSON.stringify(response.data));
-
-        const endpoint = 'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbwRg07RjU858bjirv4r6Jht9txCaQ3j5SnpSlIiEWD9QrRTN10rYHZ3L5MY9n84N1HT/exec';
-
-        const url = `${endpoint}?spreadsheetId=${currentSheetId}&jsonData=${encodedData}`;
-
-        console.log(url);
-        displayURLContainer(url);
-
+        const marksUrl = 'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbwRg07RjU858bjirv4r6Jht9txCaQ3j5SnpSlIiEWD9QrRTN10rYHZ3L5MY9n84N1HT/exec' + "?spreadsheetId=" + currentSheetId + "&jsonData=" + encodedData;
+        console.log(marksUrl);
+        displayURLContainer(marksUrl);
         removeDataContainers();
-    });
+
+    } catch (error) {
+        alert('Error: ' + error);
+    }
 }
+
 
 function displayURLContainer(url) {
     const targetDiv = document.querySelector('.P2pQDc');
@@ -302,18 +343,3 @@ function removeDataContainers() {
         copyData.parentNode.removeChild(copyData);
     }
 }
-
-// async function fetchYourApiForSheetId() {
-//     try {
-//         console.log("current form id", currentFormId);
-//         const yourApiUrl = `https://script.google.com/a/macros/kiit.ac.in/s/AKfycbzAdNOpxWLSzMDoSJBiGUWW-ZXdNV701y_Vmzp1oma2Ib7TILH6MeuzTvvG6-tRb1w5cQ/exec?formId=${currentFormId}`;
-//         const response = await fetch(yourApiUrl);
-//         const data = await response.json();
-//         console.log("helooooooooo", data);
-//         return data.sheetId; // Assuming the API returns the sheet ID
-//     } catch (error) {
-//         console.error('Error fetching sheet ID:', error);
-//         throw error; // Re-throw the error to be handled by the caller
-//     }
-// }
-

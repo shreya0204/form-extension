@@ -51,49 +51,29 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "submitData") {
-        let dataToSend;
+        const apiURL = 'http://localhost:5000/api/v1/formatter/extract-answers';
 
-        try {
-            // Attempt to parse the pasted data
+        (async () => {
             const parsedData = JSON.parse(request.data);
-
-            // Ensure the parsed data is an array, if not, wrap it in an array
-            if (!Array.isArray(parsedData)) {
-                dataToSend = [parsedData];
-            } else {
-                dataToSend = parsedData;
-            }
-        } catch (error) {
-            // Handle cases where the pasted data is not valid JSON
-            console.error('Error parsing pasted data:', error);
-            sendResponse({ error: 'Pasted data is not valid JSON' });
-            return true;
-        }
-
-        console.log('data:', dataToSend);
-        console.log("type", typeof dataToSend)
-        // Send the formatted data to the backend
-        fetch('http://localhost:5000/api/v1/formatter/extract-answers', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataToSend)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
+            const requestbody = JSON.stringify(parsedData);
+            try {
+                const response = await fetch(apiURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: requestbody
+                });
+                const data = await response.json();
+                console.log(data);
                 sendResponse({ data: data });
-            })
-            .catch(error => {
+            } catch (error) {
+                console.error('Error:', error);
                 sendResponse({ error: error.message });
-            });
+            }
+        })();
 
-        return true; // Indicates that the response is sent asynchronously
+        return true;
     }
 });
 

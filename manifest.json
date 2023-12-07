@@ -14,7 +14,8 @@
     "https://prompt-enhancer.onrender.com/*",
     "https://docs.google.com/*",
     "http://localhost:5000/*",
-    "http://localhost:3000/*"
+    "http://localhost:3000/*",
+    "http://localhost:5000/api/v1/formatter/extract-answers"
   ],
   "background": {
     "service_worker": "background.js"
@@ -25,7 +26,8 @@
       "https://docs.google.com/*",
       "https://prompt-enhancer.onrender.com/*", 
       "http://localhost:5000/*",
-      "http://localhost:3000/*"
+      "http://localhost:3000/*",
+      "http://localhost:5000/api/v1/formatter/extract-answers"
     ],
       "js": ["contentScript.js"]
     }
