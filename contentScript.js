@@ -101,12 +101,13 @@ function showSpreadsheetIdInput() {
     // Textarea for input
     const textarea = document.createElement('textarea');
     textarea.id = 'spreadsheetIdInput';
-    textarea.style.cssText = 'width: 70%; height: 100px; margin-top: 10px;';
+    textarea.style.cssText = 'width: 100%; height: 50px; margin-top: 10px;';
     textarea.placeholder = 'Enter your linked spreadsheet ID here';
 
     // Submit button
     const submitButton = document.createElement('button');
     submitButton.innerText = 'Submit';
+    submitButton.style.cssText = 'margin-top: 10px; padding: 10px 30px; color:white ; background-color: #7860bf; border: none;';
     submitButton.addEventListener('click', function () {
         const enteredId = textarea.value.trim();
         if (enteredId) {
