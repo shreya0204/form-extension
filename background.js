@@ -55,7 +55,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 });
 
 // responsible to generate questions
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     const apiURL = 'http://localhost:3000/api/v1/suffix/promptAdd';
     if (request.action == 'generateQuestions') {
         (async () => {

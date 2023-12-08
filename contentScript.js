@@ -292,26 +292,30 @@ async function submitPastedData() {
     try {
         chrome.runtime.sendMessage(
             { action: 'submitData', data: pastedData },
-            (response) => {
+            function (response) {
                 if (response.error) {
-                    reject(response.error);
-                } else {
-                    resolve(response);
+                    alert('Error: ' + response.error);
+                    enableSearchButton();
+                    return;
+                }
+                if (response.data) {
+                    // const questions = response.data;
+                    console.log('Response Data', response.data);
+                    // Process the response here
+                    const encodedData = encodeURIComponent(JSON.stringify(response.data));
+                    const marksUrl =
+                        'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbwRg07RjU858bjirv4r6Jht9txCaQ3j5SnpSlIiEWD9QrRTN10rYHZ3L5MY9n84N1HT/exec' +
+                        '?spreadsheetId=' +
+                        currentSheetId +
+                        '&jsonData=' +
+                        encodedData;
+                    console.log(marksUrl);
+                    displayURLContainer(marksUrl);
+                    removeDataContainers();
                 }
             },
         );
-        console.log('Response Data', response.data);
-        // Process the response here
-        const encodedData = encodeURIComponent(JSON.stringify(response.data));
-        const marksUrl =
-            'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbwRg07RjU858bjirv4r6Jht9txCaQ3j5SnpSlIiEWD9QrRTN10rYHZ3L5MY9n84N1HT/exec' +
-            '?spreadsheetId=' +
-            currentSheetId +
-            '&jsonData=' +
-            encodedData;
-        console.log(marksUrl);
-        displayURLContainer(marksUrl);
-        removeDataContainers();
+
     } catch (error) {
         alert('Error: ' + error);
     }
