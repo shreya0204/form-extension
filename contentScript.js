@@ -289,6 +289,9 @@ async function submitPastedData() {
         return;
     }
 
+    displayLoadingScreen(true);
+    removeDataContainers();
+
     try {
         chrome.runtime.sendMessage(
             { action: 'submitData', data: pastedData },
@@ -299,10 +302,7 @@ async function submitPastedData() {
                     return;
                 }
                 if (response.data) {
-                    // const questions = response.data;
                     console.log('Response Data', response.data);
-                    // const finalresult = JSON.parse(response.data);
-                    // Process the response here
                     const encodedData = encodeURIComponent(response.data);
                     const marksUrl =
                         'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbwRg07RjU858bjirv4r6Jht9txCaQ3j5SnpSlIiEWD9QrRTN10rYHZ3L5MY9n84N1HT/exec' +
@@ -310,14 +310,45 @@ async function submitPastedData() {
                         currentSheetId +
                         '&jsonData=' +
                         encodedData;
-                    console.log(marksUrl);
+                    displayLoadingScreen(false);
                     displayURLContainer(marksUrl);
-                    removeDataContainers();
                 }
             },
         );
     } catch (error) {
+        displayLoadingScreen(false);
         alert('Error: ' + error);
+    }
+}
+
+
+function displayLoadingScreen(show) {
+    if (!show) {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.remove();
+        }
+        return;
+    }
+
+    const targetDiv = document.querySelector('.P2pQDc');
+    if (targetDiv) {
+        // Create a container for the loading indicator
+        const loadingContainer = document.createElement('div');
+        loadingContainer.id = 'loadingScreen';
+        loadingContainer.style.cssText = 'width:100%; margin-top: 10px;';
+
+        // Create a disabled button to act as a loading indicator
+        const loadingButton = document.createElement('button');
+        loadingButton.innerText = 'Loading...';
+        loadingButton.style.cssText = 'width:100%; padding: 10px; cursor: not-allowed; background-color: #f3f3f3; color: #999;';
+        loadingButton.disabled = true; // Disable the button to prevent clicks
+
+        // Append the button to the container
+        loadingContainer.appendChild(loadingButton);
+
+        // Insert the container into the page
+        targetDiv.appendChild(loadingContainer);
     }
 }
 
