@@ -301,8 +301,9 @@ async function submitPastedData() {
                 if (response.data) {
                     // const questions = response.data;
                     console.log('Response Data', response.data);
+                    // const finalresult = JSON.parse(response.data);
                     // Process the response here
-                    const encodedData = encodeURIComponent(JSON.stringify(response.data));
+                    const encodedData = encodeURIComponent(response.data);
                     const marksUrl =
                         'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbwRg07RjU858bjirv4r6Jht9txCaQ3j5SnpSlIiEWD9QrRTN10rYHZ3L5MY9n84N1HT/exec' +
                         '?spreadsheetId=' +
@@ -315,7 +316,6 @@ async function submitPastedData() {
                 }
             },
         );
-
     } catch (error) {
         alert('Error: ' + error);
     }
