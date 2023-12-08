@@ -4,10 +4,10 @@ let currentSheetId = localStorage.getItem('spreadsheetId');
 
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    if (message.action === "insertAutoCheckButton") {
+    if (message.action === 'insertAutoCheckButton') {
         insertAutoCheckButton();
     }
-    if (message.type === "NEW") {
+    if (message.type === 'NEW') {
         currentFormId = message.formId; // Store the form ID
         console.log('Form ID received:', currentFormId);
     }
@@ -15,7 +15,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 // This function fetches and returns the content of prompt.html
 function fetchPromptHtml() {
-    return fetch(chrome.runtime.getURL('prompt.html')).then(response => response.text());
+    return fetch(chrome.runtime.getURL('prompt.html')).then((response) =>
+        response.text(),
+    );
 }
 
 // This function injects HTML content into the page
@@ -42,14 +44,12 @@ function resetSearchButton() {
     searchButton.style.backgroundColor = '#7860bf';
 }
 
-
 function disableSearchButton() {
     const searchButton = document.getElementById('searchButton');
     searchButton.disabled = true;
     searchButton.innerText = 'Searching...'; // Optional: change the button text
     searchButton.style.backgroundColor = '#aaa';
 }
-
 
 function enableSearchButton() {
     const searchButton = document.getElementById('searchButton');
@@ -59,9 +59,11 @@ function enableSearchButton() {
 }
 
 function generateUrl(formId, questions) {
-    const scriptUrl = "https://script.google.com/a/macros/kiit.ac.in/s/AKfycbzmUChMVYOzNTRwUb1M802iYeYZKZGR4O7iFocYqJBlr_aTTgzTvxemGcNvuAOjm-0/exec";
+    const scriptUrl =
+        'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbzmUChMVYOzNTRwUb1M802iYeYZKZGR4O7iFocYqJBlr_aTTgzTvxemGcNvuAOjm-0/exec';
     var encodedQuestions = encodeURIComponent(JSON.stringify(questions));
-    var fullUrl = scriptUrl + "?formId=" + formId + "&questionData=" + encodedQuestions;
+    var fullUrl =
+        scriptUrl + '?formId=' + formId + '&questionData=' + encodedQuestions;
 
     showAddQuestionsButton(fullUrl);
     return fullUrl;
@@ -80,15 +82,16 @@ function showAddQuestionsButton(url) {
     };
 }
 
-
 // Sets up the click event listener for the "Search your result" button
 function setUpButtonListener() {
     const searchButton = document.getElementById('searchButton');
     if (searchButton) {
         searchButton.addEventListener('click', function () {
             const userInput = document.getElementById('prompt').value;
-            const promptTypeSelect = document.getElementById('promptTypeSelect');
-            const promptType = promptTypeSelect.options[promptTypeSelect.selectedIndex].value;
+            const promptTypeSelect =
+                document.getElementById('promptTypeSelect');
+            const promptType =
+                promptTypeSelect.options[promptTypeSelect.selectedIndex].value;
             handleSearch(userInput, promptType);
         });
     }
@@ -107,7 +110,8 @@ function showSpreadsheetIdInput() {
     // Submit button
     const submitButton = document.createElement('button');
     submitButton.innerText = 'Submit';
-    submitButton.style.cssText = 'margin-top: 10px; padding: 10px 30px; color:white ; background-color: #7860bf; border: none;';
+    submitButton.style.cssText =
+        'margin-top: 10px; padding: 10px 30px; color:white ; background-color: #7860bf; border: none;';
     submitButton.addEventListener('click', function () {
         const enteredId = textarea.value.trim();
         if (enteredId) {
@@ -138,24 +142,27 @@ function handleSearch(userPrompt, promptType) {
     }
 
     // Send message to background script for GPT prompt
-    chrome.runtime.sendMessage({ userPrompt: userPrompt }, function (response) {
-        if (response.error) {
-            alert('Error: ' + response.error);
-            enableSearchButton();
-            return;
-        }
-        if (response.data) {
-            const questions = response.data;
-            if (questions.length === 0) {
-                alert("No questions found");
+    chrome.runtime.sendMessage(
+        { action: 'generateQuestions', userPrompt: userPrompt },
+        function (response) {
+            if (response.error) {
+                alert('Error: ' + response.error);
                 enableSearchButton();
                 return;
             }
-            console.log("Final Questions : " + questions);
-            const url = generateUrl(currentFormId, questions);
-            console.log("Url : " + url);
-        }
-    });
+            if (response.data) {
+                const questions = response.data;
+                if (questions.length === 0) {
+                    alert('No questions found');
+                    enableSearchButton();
+                    return;
+                }
+                console.log('Final Questions : ' + questions);
+                const url = generateUrl(currentFormId, questions);
+                console.log('Url : ' + url);
+            }
+        },
+    );
 }
 
 if (document.readyState === 'loading') {
@@ -170,14 +177,15 @@ function insertAutoCheckButton() {
     }
 
     const targetDiv = document.querySelector('.P2pQDc'); // Select the target element
-    console.log("target", targetDiv);
+    console.log('target', targetDiv);
     if (targetDiv) {
         // Create the button element
         const button = document.createElement('button');
         button.type = 'button';
         button.id = 'autoCheckButton';
         button.innerText = 'Auto Check Theory Questions';
-        button.style.cssText = 'cursor: pointer; padding: 10px; color: white; background-color: #7860bf; border: none;';
+        button.style.cssText =
+            'cursor: pointer; padding: 10px; color: white; background-color: #7860bf; border: none;';
         // Insert the button as the second child
         targetDiv.insertBefore(button, targetDiv.children[1]);
     }
@@ -195,7 +203,7 @@ function initializeContentScript() {
     } else {
         showSpreadsheetIdInput(); // Show input if ID is not known
     }
-    fetchPromptHtml().then(html => injectHtml(html));
+    fetchPromptHtml().then((html) => injectHtml(html));
 }
 
 function handleAutoCheckButtonClick() {
@@ -206,7 +214,8 @@ function handleAutoCheckButtonClick() {
 
     // Add instruction text
     const instructionText = document.createElement('p');
-    instructionText.innerText = 'Copy and paste this URL in a new tab, then copy the data. After copying, click the "I Have Copied the Data" button below.';
+    instructionText.innerText =
+        'Copy and paste this URL in a new tab, then copy the data. After copying, click the "I Have Copied the Data" button below.';
     urlContainer.appendChild(instructionText);
 
     // Create an input field for the URL
@@ -276,33 +285,37 @@ function showPasteDataArea() {
 async function submitPastedData() {
     const pastedData = document.getElementById('pastedDataInput').value;
     if (!pastedData) {
-        alert("Please paste the data");
+        alert('Please paste the data');
         return;
     }
 
     try {
-        const response = await new Promise((resolve, reject) => {
-            chrome.runtime.sendMessage({ action: "submitData", data: pastedData }, response => {
+        chrome.runtime.sendMessage(
+            { action: 'submitData', data: pastedData },
+            (response) => {
                 if (response.error) {
                     reject(response.error);
                 } else {
                     resolve(response);
                 }
-            });
-        });
-        console.log("Response Data", response.data)
+            },
+        );
+        console.log('Response Data', response.data);
         // Process the response here
         const encodedData = encodeURIComponent(JSON.stringify(response.data));
-        const marksUrl = 'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbwRg07RjU858bjirv4r6Jht9txCaQ3j5SnpSlIiEWD9QrRTN10rYHZ3L5MY9n84N1HT/exec' + "?spreadsheetId=" + currentSheetId + "&jsonData=" + encodedData;
+        const marksUrl =
+            'https://script.google.com/a/macros/kiit.ac.in/s/AKfycbwRg07RjU858bjirv4r6Jht9txCaQ3j5SnpSlIiEWD9QrRTN10rYHZ3L5MY9n84N1HT/exec' +
+            '?spreadsheetId=' +
+            currentSheetId +
+            '&jsonData=' +
+            encodedData;
         console.log(marksUrl);
         displayURLContainer(marksUrl);
         removeDataContainers();
-
     } catch (error) {
         alert('Error: ' + error);
     }
 }
-
 
 function displayURLContainer(url) {
     const targetDiv = document.querySelector('.P2pQDc');
@@ -333,7 +346,6 @@ function displayURLContainer(url) {
     }
 }
 
-
 function removeDataContainers() {
     const urlContainer = document.getElementById('pasteDataContainer');
     if (urlContainer && urlContainer.parentNode) {
@@ -344,3 +356,4 @@ function removeDataContainers() {
         copyData.parentNode.removeChild(copyData);
     }
 }
+
