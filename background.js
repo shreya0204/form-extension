@@ -1,3 +1,4 @@
+// auto starts the extension
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (tab.url && tab.url.includes('https://docs.google.com/forms/d/') && tab.url.includes('/edit#responses')) {
         chrome.tabs.sendMessage(tabId, { action: "insertAutoCheckButton" });
@@ -21,7 +22,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
-
+// responsible to generate questions
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const apiURL = 'http://localhost:3000/api/v1/suffix/promptAdd';
 
@@ -49,6 +50,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; // Return true to indicate you wish to send a response asynchronously
 });
 
+
+// sheet data to API
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === "submitData") {
         const apiURL = 'http://localhost:5000/api/v1/formatter/extract-answers';
