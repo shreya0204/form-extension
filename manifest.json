@@ -15,7 +15,8 @@
     "https://docs.google.com/*",
     "http://localhost:5000/*",
     "http://localhost:3000/*",
-    "http://localhost:5000/api/v1/formatter/extract-answers"
+    "http://localhost:5000/api/v1/formatter/extract-answers",
+    "https://text-answer-handler.onrender.com/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -27,7 +28,8 @@
       "https://prompt-enhancer.onrender.com/*", 
       "http://localhost:5000/*",
       "http://localhost:3000/*",
-      "http://localhost:5000/api/v1/formatter/extract-answers"
+      "http://localhost:5000/api/v1/formatter/extract-answers",
+      "https://text-answer-handler.onrender.com/*"
     ],
       "js": ["contentScript.js"]
     }

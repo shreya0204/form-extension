@@ -28,18 +28,18 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // sheet data to API
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === 'submitData') {
-        const apiURL = 'http://localhost:5000/api/v1/formatter/extract-answers';
+        const apiURL = 'https://text-answer-handler.onrender.com/api/v1/formatter/get-feedback';
 
         (async () => {
-            const parsedData = JSON.parse(request.data);
-            const requestbody = JSON.stringify(parsedData);
+            console.log("Request body: " + request.data);
+            console.log("Type of ", typeof request.data);
             try {
                 const response = await fetch(apiURL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: requestbody,
+                    body: JSON.stringify(request.data),
                 });
                 const data = await response.json();
                 console.log(data);
@@ -56,7 +56,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 // responsible to generate questions
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    const apiURL = 'http://localhost:3000/api/v1/suffix/promptAdd';
+    const apiURL = 'https://prompt-enhancer.onrender.com/api/v1/suffix/promptAdd';
     if (request.action == 'generateQuestions') {
         (async () => {
             try {
