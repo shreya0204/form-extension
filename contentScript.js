@@ -334,13 +334,16 @@ async function submitPastedData() {
         alert('Please paste the data');
         return;
     }
-
+    const parsedPastedData = JSON.parse(pastedData);
+    const refactoredData = refactorDataForAPI(parsedPastedData, subject);
+    console.log(refactoredData);
+    console.log("Type", typeof refactoredData);
     displayLoadingScreen(true);
     removeDataContainers();
 
     try {
         chrome.runtime.sendMessage(
-            { action: 'submitData', data: pastedData },
+            { action: 'submitData', data: refactoredData },
             function (response) {
                 if (response.error) {
                     alert('Error: ' + response.error);
@@ -366,6 +369,14 @@ async function submitPastedData() {
         alert('Error: ' + error);
     }
 }
+
+function refactorDataForAPI(data, subject) {
+    return {
+        subject: subject,
+        sheet_data: data
+    };
+}
+
 
 
 function displayLoadingScreen(show) {
