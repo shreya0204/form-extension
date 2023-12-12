@@ -1,6 +1,7 @@
 let currentFormId = null; // This variable will hold the form ID
 // let currentSheetId = '1ROzHfRXbtNW4n-oDd05o0RmDvEcup3rAxiKcxrtER80'; // This variable will hold the
 let currentSheetId = localStorage.getItem('spreadsheetId');
+let subject = null; // This variable will hold the subject name
 
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -193,7 +194,8 @@ function insertAutoCheckButton() {
     const autoCheckButton = document.getElementById('autoCheckButton');
     if (autoCheckButton) {
         autoCheckButton.addEventListener('click', function () {
-            handleAutoCheckButtonClick();
+            insertSubjectInputField();
+
         });
     }
 }
@@ -244,6 +246,50 @@ function handleAutoCheckButtonClick() {
     // Automatically select the URL text
     urlInput.focus();
     urlInput.select();
+}
+
+function insertSubjectInputField() {
+    const targetDiv = document.querySelector('.P2pQDc');
+    if (!targetDiv) return;
+
+    // Create a container for the input field and button
+    const container = document.createElement('div');
+    container.style.cssText = 'margin-top: 10px;';
+
+    // Create the input field for the subject
+    const subjectInput = document.createElement('input');
+    subjectInput.type = 'text';
+    subjectInput.placeholder = 'Enter Subject Name';
+    subjectInput.style.cssText = 'padding: 5px;';
+
+    // Create the button to store the subject
+    const storeSubjectButton = document.createElement('button');
+    storeSubjectButton.innerText = 'Store Subject';
+    storeSubjectButton.style.cssText = 'margin-left: 10px; padding: 5px 10px; cursor: pointer; background-color: #4CAF50; color: white;';
+
+    // Append the input field and button to the container
+    container.appendChild(subjectInput);
+    container.appendChild(storeSubjectButton);
+
+    // Append the container to the target div
+    targetDiv.appendChild(container);
+
+    // Add click event listener to the button
+    storeSubjectButton.addEventListener('click', function () {
+        const subjectName = subjectInput.value.trim();
+        if (subjectName) {
+            storeSubjectName(subjectName);
+            container.remove(); // Remove the input field and button
+            handleAutoCheckButtonClick(); // Show the URL input and instructions
+        } else {
+            alert('Please enter a subject name.');
+        }
+    });
+}
+
+function storeSubjectName(name) {
+    subject = name; // Store the subject name in the global variable
+    console.log('Subject stored:', subject);
 }
 
 function showPasteDataArea() {
